@@ -30,14 +30,14 @@ function logProductInfo() {
 
     try {
      var dataRange = namedRange.getRange().getValues();
+     dataRange.forEach(function(row) {
+     //for (var a = 0; a < dataRange.length; a++) {
+      // var status = dataRange[a];
 
-     for (var a = 0; a < dataRange.length; a++) {
-       var status = dataRange[a];
-
-       if (!!(status[4] == STATUS_MSG.approved)) {
-         Logger.log("Division Page: " + rangeName + "\n Current Status is set to: " + status[4] + "\nContent Name: " + status[5]);
+       if (!!(row[4] == STATUS_MSG.approved)) {
+         Logger.log("Division Page: " + rangeName + "\n Current Status is set to: " + row[4] + "\nContent Name: " + row[5]);
        }
-     }
+     });
    } catch (err) {
      Logger.log(err);
    }
