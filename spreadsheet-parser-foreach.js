@@ -16,30 +16,30 @@ function logProductInfo() {
   // namedRangeList {array} - delcares an array of all the named ranges in the spreadsheet
   // >[NamedRange, NamedRange, NamedRange...]
   var namedRangeList = sheet.getNamedRanges();
-  var i = 0;
+
+  namedRangeList.forEach(function(namedRange){
   //for (var i = 0; i < namedRangeList.length - 1; i++) {
 
-    // range {object} - declares a variable for a named range
-     var range = namedRangeList[i];
-
-     // rangeName {string} - returns the name of a selected range
-     var rangeName = range.getName();
+     //var range = namedRangeList[i];
+     //var range = namedRange.getRange();
+     var rangeName = namedRange.getName();
 
      // datarange {Object[][]} - declares a variable for a rectangular object containing all values
        // within object range (which has an object type of range, unique to Google Sheets Script)
      // datarange is now an instance that can have range class methods used on it
 
     try {
-     var dataRange = range.getRange().getValues();
+     var dataRange = namedRange.getRange().getValues();
 
      for (var a = 0; a < dataRange.length; a++) {
        var status = dataRange[a];
 
-       if (!!(status[4] == STATUS_MSG.ready)) {
-         Logger.log(status[5] + " " + status[5]);
+       if (!!(status[4] == STATUS_MSG.approved)) {
+         Logger.log("Division Page: " + rangeName + "\n Current Status is set to: " + status[4] + "\nContent Name: " + status[5]);
        }
      }
    } catch (err) {
      Logger.log(err);
    }
+  });
 }
