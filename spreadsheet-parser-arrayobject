@@ -23,18 +23,6 @@ function lagProduct() {
     STATUS_MSG.approved,
   ];
 
- /*function createStatusProp(range, row){
-
-    var currentState = row[4];
-    var rowName = row[5];
-
-    if ((currentState !== STATUS_MSG.approved) || (STATUS_MSG_ARRAY.indexOf(currentState) >= 0)){
-       range.name = rowName;
-       range.status = currentState;
-
-    }
-  }*/
-
   namedRangeList.forEach(function(namedRange){
 
     var pageObject = {};
