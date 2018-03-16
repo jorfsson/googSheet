@@ -28,6 +28,8 @@ function logProductInfo() {
      // datarange {Object[][]} - declares a variable for a rectangular object containing all values
        // within object range (which has an object type of range, unique to Google Sheets Script)
      // datarange is now an instance that can have range class methods used on it
+
+    try {
      var dataRange = range.getRange().getValues();
 
      for (var a = 0; a < dataRange.length; a++) {
@@ -36,7 +38,8 @@ function logProductInfo() {
        if (!!(status[4] == STATUS_MSG.ready)) {
          Logger.log(status[5] + " " + status[5]);
        }
-
-
      }
+   } catch (err) {
+     Logger.log(err);
+   }
 }
