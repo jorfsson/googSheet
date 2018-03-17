@@ -1,4 +1,4 @@
-function reportEmailer() {
+function reportEmailer_CDA() {
 
   //Email List
   var recipient = "jeffreychea234@gmail.com";
@@ -8,7 +8,7 @@ function reportEmailer() {
 
   //Sheet - Sets active sheet to US Build Notes. Returns class sheet, specific to Google Script
   //Note - CDA version is in separate file due to differences in cell placement.
-  var sheet = ss.getSheetByName('US Build Notes');
+  var sheet = ss.getSheetByName('CDA Build Notes');
 
   //String - Gets the URL for the spreadsheet
   var sheetURL = ss.getUrl();
@@ -26,44 +26,50 @@ function reportEmailer() {
   //Object - Contains all possible statuses within a build note.
   var STATUS_MSG = {
     bnQA: "BN QA Complete",
-    ready: "Ready for WCD",
+    readyEN: "CDA EN Ready for WCD",
+    readyFR: "CDA FR Ready for WCD",
     needContact: "Please Contact WCD",
     QAReady: "Ready for QA Review",
-    notReady: "Not Ready for WCD",
+    notReadyEN: "CDA EN Not Ready for WCD",
+    notReadyFR: "CDA FR Not Ready for WCD",
     promoApproved: "Promo Marketing Approved",
     approved: "Approved QA Complete"
   }
 
-  //Array - all properties from the STATUS_MSG object for iteration purposes
+  //Array - all properties from the STATUS_MSG for iteration purposes
   var STATUS_MSG_ARRAY = [
     STATUS_MSG.bnQA,
-    STATUS_MSG.ready,
+    STATUS_MSG.readyEN,
+    STATUS_MSG.readyFR,
     STATUS_MSG.needContact,
     STATUS_MSG.QAReady,
-    STATUS_MSG.notReady,
+    STATUS_MSG.notReadyEN,
+    STATUS_MSG.notReadyFR,
     STATUS_MSG.promoApproved,
     STATUS_MSG.approved,
   ];
 
-  //Written as separated strings due to Google Script req
+  //String - Body that contains CSS styling for email, including table styling, and email header
+  //Body must be written as a collection of separated strings due to Google Script App formatting requirements
   var body =
 
     "<head><style>" +
 
     ".build__url { font-family: sans-serif; font-size: 12px;}" +
     ".build__category { font-family: sans-serif; margin-top: 40px; margin-bottom: -10px;}" +
-    ".build__table { border: 0; text-align: left; font-family: sans-serif;}" +
+    ".build__table { border: 1px; border-color: black; text-align: left; font-family: sans-serif;}" +
     ".build__header { line-height: 30px;}" +
     ".build__main_header { font-family: sans-serif; line-height: 30px;}" +
     ".build__ticket-row { height: 40px;}" +
     ".build__ticket-row-even { background-color: #e2edfb;}" +
     ".build_ticket-producer { text-align: center;}" +
-    ".build_ticket-status { padding: 5px 8px; border-radius: 3px; }" +
-    ".build_ticket-status-bnQA { border-radius: 3px; text-align: center; background-color: #f9f0d7;}" +
-    ".build_ticket-status-ready {  border-radius: 3px; text-align: center; background-color: #e29bff;}" +
+    ".build_ticket-status-bnQA {  border-radius: 3px; text-align: center; background-color: #f9f0d7;}" +
+    ".build_ticket-status-readyEN {  border-radius: 3px; text-align: center; background-color: #e29bff;}" +
+    ".build_ticket-status-readyFR {  border-radius: 3px; text-align: center; background-color: #e29bff;}" +
     ".build_ticket-status-needContact {  border-radius: 3px; text-align: center; background-color: #ff00df;}" +
     ".build_ticket-status-QAReady {  border-radius: 3px; text-align: center; background-color: #e2f4dc;}" +
-    ".build_ticket-status-notReady {  border-radius: 3px; text-align: center; background-color: #ea6767;}" +
+    ".build_ticket-status-notReadyEN {  border-radius: 3px; text-align: center; background-color: #ea6767;}" +
+    ".build_ticket-status-notReadyFR {  border-radius: 3px; text-align: center; background-color: #ea6767;}" +
     ".build_ticket-status-promoApproved {  border-radius: 3px; text-align: center; background-color: #0effc7;}" +
     ".build_ticket-status-approved {  border-radius: 3px; text-align: center; background-color: #369ee8;}" +
 
@@ -111,30 +117,32 @@ function reportEmailer() {
      //getValues() is then called on Range Object
      var dataRange = namedRange.getRange().getValues();
      var storedName = "";
-
+     var storedState = "";
      dataRange.forEach(function(row) {
 
        var ticketObject = {};
-       var currentState = row[4];
+       var currentState = row[5];
+       var producer = row[10];
+
 
        //Name check for (NEW) in last 5 char spaces of names
-       var preName = row[5].trim();
-       if (preName) {
-         storedName = preName;
-       } else {
-         preName = storedName;
-       }
-
+       //Stores name and state for CDA FR checks
+       var preName = row[6].trim();
        var currentName = "";
        if (!!(preName.slice(-5) === '(NEW)')) {
-         currentName = preName;
-       };
-
-       var producer = row[9];
+           storedName = preName;
+           storedState = currentState;
+           currentName = preName;
+       }
 
        //Conditional statement that checks to see if currentState is not equal to "Approved QA Complete"
        //Also checks to make sure that currentState has an index that does not equal 0, to account for blank cells
        if ((currentState !== STATUS_MSG.approved) && (STATUS_MSG_ARRAY.indexOf(currentState) >= 0)) {
+
+         //shows CDA Fr status with blank name if CDA Eng is not approved, shows with name if approved
+         if ((currentName == "") && (storedState == STATUS_MSG.approved)) {
+          currentName = storedName;
+         }
 
          ticketObject.name = currentName;
          ticketObject.status = currentState;
@@ -207,7 +215,7 @@ function reportEmailer() {
     //Completed Build Note email
     MailApp.sendEmail({
       to: recipient,
-      subject: date + " Build Note Report",
+      subject: date + " CDA Build Note Report",
       htmlBody: completedBody,
     })
   }
